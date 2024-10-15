@@ -1,12 +1,9 @@
 class Entrega:
-    def __init__(self, idEntrega, destino, volume, prazo):
-        self.idEntrega = idEntrega
+    def __init__(self, destino, volume, prazo):
         self.destino = destino
         self.volume = volume
         self.prazo = prazo
         self.status = "Pendente"
 
-    def atualizarStatus(self, status):
-        self.status = status
-
-
+    def atualizar_status(self, novo_status):
+        self.status = novo_status
