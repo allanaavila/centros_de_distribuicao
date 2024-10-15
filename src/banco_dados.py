@@ -1,8 +1,8 @@
 import csv
-from src.caminhao import Caminhao
-from src.centro_distribuicao import CentroDistribuicao
-from src.entrega import Entrega
-from src.grafo_distancias import GrafoDistancias
+from caminhao import Caminhao
+from centro_distribuicao import CentroDistribuicao
+from entrega import Entrega
+from grafo_distancias import GrafoDistancias
 
 class BancoDeDados:
     def __init__(self):
@@ -24,7 +24,7 @@ class BancoDeDados:
         with open(filename, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                caminhao = Caminhao(int(row['capacidade_maxima']), int(row['horas_operacao']))
+                caminhao = Caminhao(int(row['capacidade_maxima']), int(row['horas_operacao']), row['centro_nome'])
                 for centro in self.centros:
                     if centro.cidade == row['centro_nome']:  # Usar o atributo correto
                         centro.adicionar_caminhao(caminhao)

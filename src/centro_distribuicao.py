@@ -13,3 +13,6 @@ class CentroDistribuicao:
             if caminhao.disponivel():
                 return caminhao
         return None
+    
+    def adicionar_entrega(self, entrega):
+        print(entrega)
