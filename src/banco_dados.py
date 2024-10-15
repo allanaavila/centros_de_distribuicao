@@ -9,6 +9,7 @@ class BancoDeDados:
         self.centros = []
         self.entregas = []
         self.distancias = {}
+        self.grafo = GrafoDistancia()
 
     def carregar_centros(self, filename):
         centros = []
@@ -24,9 +25,9 @@ class BancoDeDados:
         with open(filename, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                caminhao = Caminhao(int(row['capacidade_maxima']), int(row['horas_operacao']), row['centro_nome'])
+                caminhao = Caminhao(int(row['capacidade_maxima']), int(row['horas_operacao']))
                 for centro in self.centros:
-                    if centro.nome == row['centro_nome']:
+                    if centro.localizacao == f"{row['cidade']}, {row['estado']}":
                         centro.adicionar_caminhao(caminhao)
                         break
 
@@ -37,17 +38,23 @@ class BancoDeDados:
             for row in reader:
                 entrega = Entrega(row['destino'], int(row['quantidade_carga']), int(row['prazo']))
                 for centro in self.centros:
-                    if centro.nome == row['centro_nome']:  # Verifique se o atributo é 'nome'
+                    if centro.nome == row['centro_nome']:
                         centro.adicionar_entrega(entrega)
                         break
 
     def carregar_grafo_distancias(self, filename):
-        grafo = GrafoDistancia()
         with open(filename, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                grafo.adicionar_distancia(row['origem'], row['destino'], float(row['distancia']))
-        return grafo
+                origem = row['origem']
+                destino = row['destino']
+                distancia = int(row['distancia'])
+
+                self.grafo.adicionar_vertice(origem)
+                self.grafo.adicionar_vertice(destino)
+                self.grafo.adicionar_aresta(origem, destino, distancia)
+        return self.grafo
+
 
     def salvar_centros(self, filename):
         with open(filename, mode='w', newline='', encoding='utf-8') as csvfile:
@@ -56,8 +63,8 @@ class BancoDeDados:
 
             writer.writeheader()
             for centro in self.centros:
-                writer.writerow(
-                    {'nome': centro.nome, 'localizacao': centro.localizacao})
+                writer.writerow({'nome': centro.nome, 'localizacao': centro.localizacao})
+
 
     def salvar_caminhoes(self, filename):
         with open(filename, mode='w', newline='', encoding='utf-8') as csvfile:
@@ -70,6 +77,7 @@ class BancoDeDados:
                     writer.writerow({'capacidade_maxima': caminhao.capacidade,
                                      'horas_operacao': caminhao.horas_operacao,
                                      'centro_nome': centro.nome})
+
 
     def salvar_entregas(self, filename):
         with open(filename, mode='w', newline='', encoding='utf-8') as csvfile:
@@ -84,14 +92,15 @@ class BancoDeDados:
                                      'prazo': entrega.prazo,
                                      'centro_nome': centro.nome})
 
+
     def salvar_grafo_distancias(self, filename):
         with open(filename, mode='w', newline='', encoding='utf-8') as csvfile:
             fieldnames = ['origem', 'destino', 'distancia']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()
-            for origem, destinos in self.distancias.items():
-                for destino, distancia in destinos.items():
+            for origem in self.grafo.vertices:  # Iterate over the graph vertices
+                for destino, distancia in self.grafo.distancias[origem].items():
                     writer.writerow({'origem': origem,
                                      'destino': destino,
                                      'distancia': distancia})

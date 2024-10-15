@@ -1,2 +1,5 @@
-centro_nome,capacidade_maxima,horas_operacao
-
+capacidade_maxima,horas_operacao,cidade,estado
+1000,8,Recife,PE
+1200,10,São Paulo,SP
+800,8,Belém,PA
+1500,12,Curitiba,PR
