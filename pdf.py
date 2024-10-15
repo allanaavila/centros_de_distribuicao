@@ -52,7 +52,7 @@ pdf.set_font("Courier", size=10)
 file_structure = (
 "/otimizacao_logistica/           <- O nome da pasta do projeto\n"
 "|\n"
-"|-- data/                        <- Dados sobre os centros e entregas.\n"
+"|-- csv/                        <- Dados sobre os centros e entregas.\n"
 "|   |-- centros_distribuicao.csv  <- Lista de centros de distribuição.\n"
 "|   |-- entregas.csv              <- Lista de entregas com destinos e prazos.\n"
 "|   `-- distancias.csv            <- Um 'mapa' com as distâncias entre centros e destinos.\n"
