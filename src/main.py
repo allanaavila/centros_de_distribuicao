@@ -5,7 +5,7 @@ from banco_dados import BancoDeDados
 from grafo_distancias import GrafoDistancia
 from roteamento import Roteamento
 from simulacao import Simulacao
-
+from relatorios import Relatorio
 
 def main():
     banco_de_dados = BancoDeDados()
