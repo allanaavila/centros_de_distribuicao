@@ -21,6 +21,7 @@ class BancoDeDados:
                 except KeyError as e:
                     print(f"Erro ao carregar centros: coluna faltando {str(e)} no arquivo.")
 
+
     def carregar_caminhoes(self, filename):
         with open(filename, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
@@ -39,6 +40,7 @@ class BancoDeDados:
                     print(f"Erro ao carregar caminhões: coluna faltando {str(e)} no arquivo.")
                 except Exception as e:
                     print(f"Erro ao criar caminhão: {e}")
+
 
     def carregar_entregas(self, filename):
         with open(filename, newline='', encoding='utf-8') as csvfile:
@@ -69,10 +71,9 @@ class BancoDeDados:
                 origem = row['origem']
                 destino = row['destino']
                 distancia = int(row['distancia'])
-
-                self.grafo.adicionar_vertice(origem)
-                self.grafo.adicionar_vertice(destino)
-                self.grafo.adicionar_aresta(origem, destino, distancia)
+                self.grafo.adicionarCidade(origem)
+                self.grafo.adicionarCidade(destino)
+                self.grafo.adicionarRota(origem, destino, distancia)
         return self.grafo
 
 
@@ -84,6 +85,7 @@ class BancoDeDados:
             writer.writeheader()
             for centro in self.centros:
                 writer.writerow({'nome': centro.nome, 'localizacao': centro.localizacao})
+
 
     def salvar_caminhoes(self, filename):
         with open(filename, mode='w', newline='', encoding='utf-8') as csvfile:
@@ -97,6 +99,7 @@ class BancoDeDados:
                                      'capacidade': caminhao.capacidade,
                                      'horas_operacao_max': caminhao.horas_operacao_max,
                                      'centro_nome': centro.nome})
+
 
     def salvar_entregas(self, filename):
         with open(filename, mode='w', newline='', encoding='utf-8') as csvfile:
@@ -118,8 +121,7 @@ class BancoDeDados:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()
-            for origem in self.grafo.vertices:  # Iterate over the graph vertices
-                for destino, distancia in self.grafo.distancias[origem].items():
-                    writer.writerow({'origem': origem,
-                                     'destino': destino,
-                                     'distancia': distancia})
+            for cidade1 in self.grafo.cidades:
+                for cidade2, distancia in self.grafo.cidades[cidade1].items():
+                    if cidade1 < cidade2:
+                        writer.writerow({'origem': cidade1, 'destino': cidade2, 'distancia': distancia})
