@@ -1,52 +1,63 @@
-import logging
-from src.caminhao import Caminhao
-from src.entrega import Entrega
-from src.grafo_distancias import GrafoDistancia
+from typing import List, Dict
+from centro_distribuicao import CentroDistribuicao
+from entrega import Entrega
+from grafo_distancias import GrafoDistancia
+from caminhao import Caminhao
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+class Rota:
+    def __init__(self, caminhao: Caminhao):
+        self.caminhao = caminhao
+        self.entregas: List[Entrega] = []
+        self.distancia_total = 0
 
+    def adicionar_entrega(self, entrega: Entrega, distancia: int):
+        self.entregas.append(entrega)
+        self.distancia_total += distancia
 
 class Roteamento:
-    def __init__(self, grafo: GrafoDistancia, caminhões: list):
+    def __init__(self, grafo: GrafoDistancia, centros: List[CentroDistribuicao]):
         self.grafo = grafo
-        self.caminhões = caminhões
-        self.entregas = []
+        self.centros = centros
 
-    def adicionar_entrega(self, entrega: Entrega):
-        if entrega.carga < 0:
-            raise ValueError("Carga não pode ser negativa.")
-        self.entregas.append(entrega)
+    def encontrar_centro_mais_proximo(self, destino: str) -> CentroDistribuicao:
+        centro_mais_proximo = None
+        menor_distancia = float('inf')
 
-    def alocar_entregas(self):
-        self.entregas.sort(key=lambda e: e.prazo)
+        for centro in self.centros:
+            distancia = self.grafo.encontrarRotaMaisCurta(centro.cidade, destino)[1]
+            if distancia < menor_distancia:
+                menor_distancia = distancia
+                centro_mais_proximo = centro
 
-        for entrega in self.entregas:
-            alocado = False
-            melhor_distancia = float('inf')
-            melhor_caminhao = None
-            melhor_rota = []
+        return centro_mais_proximo
 
-            for caminhao in self.caminhões:
-                if caminhao.isDisponivel() and caminhao.cargaAtual + entrega.carga <= caminhao.capacidade:
-                    rota, distancia = self.grafo.encontrarRotaMaisCurta(caminhao.localizacaoAtual, entrega.destino)
-                    if distancia is not None and distancia < melhor_distancia:
-                        melhor_distancia = distancia
-                        melhor_caminhao = caminhao
-                        melhor_rota = rota
+    def adicionar_entrega(self, entrega: Entrega, centro: CentroDistribuicao):
+        centro.adicionar_entrega(entrega)
 
-            if melhor_caminhao:
-                sucesso = melhor_caminhao.carregarEntrega(entrega.carga)
-                if sucesso:
-                    self._atualizar_caminhao(melhor_caminhao, entrega.destino)
-                    alocado = True
-                    logging.info(f"Entrega {entrega.idEntrega} alocada ao caminhão {melhor_caminhao.idCaminhao}.")
-                    logging.info(f"Rota: {' -> '.join(melhor_rota)} | Distância: {melhor_distancia} km")
-                else:
-                    logging.warning(f"Caminhão {melhor_caminhao.idCaminhao} não conseguiu carregar a entrega {entrega.idEntrega}.")
+    def alocar_entregas(self) -> Dict[CentroDistribuicao, List[Rota]]:
+        rotas_por_centro: Dict[CentroDistribuicao, List[Rota]] = {centro: [] for centro in self.centros}
 
-            if not alocado:
-                logging.error(f"Entrega {entrega.idEntrega} não pôde ser alocada a nenhum caminhão disponível.")
+        for centro in self.centros:
+            entregas_ordenadas = sorted(centro.entregas, key=lambda e: e.prazo)
+            
+            for entrega in entregas_ordenadas:
+                rota_alocada = False
+                for rota in rotas_por_centro[centro]:
+                    if rota.caminhao.pode_adicionar_entrega(entrega):
+                        distancia = self.grafo.encontrarRotaMaisCurta(rota.caminhao.localizacaoAtual, entrega.destino)[1]
+                        rota.adicionar_entrega(entrega, distancia)
+                        rota.caminhao.adicionar_entrega(entrega)
+                        rota_alocada = True
+                        break
+                
+                if not rota_alocada:
+                    for caminhao in centro.caminhoes:
+                        if caminhao.esta_disponivel() and caminhao.pode_adicionar_entrega(entrega):
+                            nova_rota = Rota(caminhao)
+                            distancia = self.grafo.encontrarRotaMaisCurta(caminhao.localizacaoAtual, entrega.destino)[1]
+                            nova_rota.adicionar_entrega(entrega, distancia)
+                            caminhao.adicionar_entrega(entrega)
+                            rotas_por_centro[centro].append(nova_rota)
+                            break
 
-    def _atualizar_caminhao(self, caminhao, novo_destino):
-        caminhao.disponivel = False
-        caminhao.atualizarLocalizacao(novo_destino)
+        return rotas_por_centro
