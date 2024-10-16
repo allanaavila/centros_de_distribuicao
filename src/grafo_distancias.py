@@ -53,12 +53,10 @@ class GrafoDistancia:
         self.salvarDistancias()
 
     def salvarDistancias(self):
-        """Salva as distâncias em um arquivo CSV."""
         with open('data/distancias.csv', 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=['origem', 'destino', 'distancia'])
             writer.writeheader()
             for cidade1 in self.cidades:
                 for cidade2, distancia in self.cidades[cidade1].items():
-                    # Evita salvar a mesma rota duas vezes
                     if cidade1 < cidade2:
                         writer.writerow({'origem': cidade1, 'destino': cidade2, 'distancia': distancia})
