@@ -179,10 +179,13 @@ class Caminhao:
 Já incluí algumas estatísticas básicas na classe Simulacao aprimorada. Para uma análise mais detalhada adicionei uma classe separada para relatórios:
 
 ```python
-import logging
 from typing import Dict, List
 from centro_distribuicao import CentroDistribuicao
 from roteamento import Rota
+import matplotlib.pyplot as plt
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import os
 
 class Relatorio:
     def __init__(self, dias_simulacao: int, centros: List[CentroDistribuicao]):
@@ -209,25 +212,30 @@ class Relatorio:
 
         self.estatisticas_por_dia[dia] = estatisticas_dia
 
-    def gerar_relatorio_final(self):
-        logging.info("Relatório Final Detalhado da Simulação:")
-        logging.info(f"Total de dias simulados: {self.dias_simulacao}")
-
+    def gerar_relatorio_final(self, file_path="../docs/relatorio_simulacao.pdf"):
         total_entregas = sum(dia['entregas_realizadas'] for dia in self.estatisticas_por_dia.values())
         total_distancia = sum(dia['distancia_total'] for dia in self.estatisticas_por_dia.values())
         total_atrasos = sum(dia['entregas_atrasadas'] for dia in self.estatisticas_por_dia.values())
 
-        logging.info(f"Total de entregas realizadas: {total_entregas}")
-        logging.info(f"Distância total percorrida: {total_distancia} km")
-        logging.info(f"Número total de entregas atrasadas: {total_atrasos}")
-
-        eficiencia = (total_entregas - total_atrasos) / total_entregas * 100
-        logging.info(f"Eficiência geral do sistema: {eficiencia:.2f}%")
-
+        eficiencia = (total_entregas - total_atrasos) / total_entregas * 100 if total_entregas > 0 else 0
         media_utilizacao_caminhoes = self.calcular_media_utilizacao_caminhoes()
-        logging.info(f"Utilização média dos caminhões: {media_utilizacao_caminhoes:.2f}%")
 
-        self.gerar_grafico_entregas_por_dia()
+        c = canvas.Canvas(file_path, pagesize=letter)
+        c.drawString(100, 750, f"Relatório Final Detalhado da Simulação:")
+        c.drawString(100, 730, f"Total de dias simulados: {self.dias_simulacao}")
+        c.drawString(100, 710, f"Total de entregas realizadas: {total_entregas}")
+        c.drawString(100, 690, f"Distância total percorrida: {total_distancia:.2f} km")
+        c.drawString(100, 670, f"Número total de entregas atrasadas: {total_atrasos}")
+        c.drawString(100, 650, f"Eficiência geral do sistema: {eficiencia:.2f}%")
+        c.drawString(100, 630, f"Utilização média dos caminhões: {media_utilizacao_caminhoes:.2f}%")
+
+        self.gerar_grafico_entregas_por_dia(file_path)
+
+        c.showPage()
+        c.drawImage("grafico_entregas_por_dia.png", 100, 400, width=400, height=300)
+        c.save()
+
+        os.remove("./temp/grafico_entregas_por_dia.png")
 
     def calcular_media_utilizacao_caminhoes(self) -> float:
         total_utilizacao = 0
@@ -237,15 +245,22 @@ class Relatorio:
             total_caminhoes += len(dia['utilizacao_caminhoes'])
         return total_utilizacao / total_caminhoes if total_caminhoes > 0 else 0
 
-    def gerar_grafico_entregas_por_dia(self):
-        # Aqui você pode usar uma biblioteca como matplotlib para gerar um gráfico
-        # Exemplo simplificado:
+    def gerar_grafico_entregas_por_dia(self, file_path: str):
         dias = list(self.estatisticas_por_dia.keys())
         entregas = [dia['entregas_realizadas'] for dia in self.estatisticas_por_dia.values()]
-        logging.info("Gráfico de Entregas por Dia:")
-        for dia, entrega in zip(dias, entregas):
-            logging.info(f"Dia {dia}: {'*' * entrega}")
 
+        plt.figure(figsize=(10, 6))
+        plt.plot(dias, entregas, marker='o', linestyle='-', color='b', label='Entregas por Dia')
+        
+        plt.title('Entregas Realizadas por Dia')
+        plt.xlabel('Dia')
+        plt.ylabel('Número de Entregas')
+        plt.grid(True)
+        
+        plt.legend()
+
+        plt.savefig("./temp/grafico_entregas_por_dia.png")
+        plt.close()
 ```
 
 Estas melhorias abordam os principais pontos. Essas foram as mudanças:
