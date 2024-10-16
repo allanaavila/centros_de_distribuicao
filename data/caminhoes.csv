@@ -1,5 +1,5 @@
-capacidade_maxima,horas_operacao,cidade,estado
-1000,8,Recife,PE
-1200,10,São Paulo,SP
-800,8,Belém,PA
-1500,12,Curitiba,PR
+idCaminhao,capacidade,horas_operacao_max
+1,1000,8
+2,1200,10
+3,800,8
+4,1500,12

@@ -5,7 +5,7 @@ from entrega import Entrega
 from grafo_distancias import GrafoDistancia
 
 class BancoDeDados:
-    def _init_(self):
+    def __init__(self):
         self.centros = []
         self.entregas = []
         self.distancias = {}
@@ -25,7 +25,7 @@ class BancoDeDados:
         with open(filename, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                caminhao = Caminhao(int(row['capacidade_maxima']), int(row['horas_operacao']))
+                caminhao = Caminhao(int(row['capacidade']), int(row['horas_operacao']))
                 for centro in self.centros:
                     if centro.localizacao == f"{row['cidade']}, {row['estado']}":
                         centro.adicionar_caminhao(caminhao)
