@@ -1,8 +1,9 @@
 from src.entrega import Entrega
+from src.grafo_distancias import GrafoDistancia
 
 
 class Caminhao:
-    def __init__(self, idCaminhao: int, capacidade: int, horas_operacao_max: int):
+    def __init__(self, idCaminhao: int, capacidade: int, horas_operacao_max: int, grafo: GrafoDistancia):
         self.idCaminhao = idCaminhao
         self.capacidade = capacidade
         self.horas_operacao_max = horas_operacao_max
@@ -10,10 +11,12 @@ class Caminhao:
         self.carga_atual = 0
         self.horas_operacao_atual = 0
         self.disponivel = True
+        grafo: GrafoDistancia
 
     def adicionar_entrega(self, entrega: Entrega):
         self.carga_atual += entrega.quantidade_carga
-        self.horas_operacao_atual += self.estimar_tempo_entrega(entrega)
+        tempo_entrega = self.estimar_tempo_entrega(entrega)
+        self.horas_operacao_atual += tempo_entrega
         self.localizacaoAtual = entrega.destino
 
     def pode_adicionar_entrega(self, entrega: Entrega) -> bool:
@@ -22,8 +25,9 @@ class Caminhao:
         return carga_total <= self.capacidade and horas_total <= self.horas_operacao_max
 
     def estimar_tempo_entrega(self, entrega: Entrega) -> int:
-        # Este é um método simplificado. Na prática, você usaria o GrafoDistancia
-        # para calcular o tempo real baseado na distância.
+        if self.localizacaoAtual:
+            distancia = self.grafo.obter_distancia(self.localizacaoAtual, entrega.destino)
+            return distancia / 50
         return 2
 
     def esta_disponivel(self) -> bool:
