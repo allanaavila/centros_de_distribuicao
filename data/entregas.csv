@@ -1,4 +1,9 @@
-idEntrega,destino,quantidade_carga
-1,Centro de Distribuição Recife,500
-2,Centro de Distribuição São Paulo,300
-3,Centro de Distribuição Curitiba,600
+idEntrega,centro_nome,destino,quantidade_carga,prazoEntrega
+1,Centro de Distribuição Recife,Centro de Distribuição São Paulo,500,2
+2,Centro de Distribuição São Paulo,Centro de Distribuição Curitiba,300,3
+3,Centro de Distribuição Curitiba,Centro de Distribuição Belém,600,5
+
+
+
+
+

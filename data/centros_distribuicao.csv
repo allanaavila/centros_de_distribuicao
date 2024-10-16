@@ -1,5 +1,5 @@
-idCentro,nome,localizacao
-1,Centro de Distribuição Belém, Belém
-2,Centro de Distribuição Recife, Recife
-3,Centro de Distribuição São Paulo, São Paulo
-4,Centro de Distribuição Curitiba, Curitiba
+idCentro,nome,cidade,estado
+1,Centro de Distribuição Belém,Belém,PA
+2,Centro de Distribuição Recife,Recife,PE
+3,Centro de Distribuição São Paulo,São Paulo,SP
+4,Centro de Distribuição Curitiba,Curitiba,PR

@@ -1,8 +1,11 @@
 class CentroDistribuicao:
-    def __init__(self, cidade, estado):
+    def __init__(self, nome, cidade, estado):
+        self.nome = nome
         self.cidade = cidade
         self.estado = estado
+        self.localizacao = f"{cidade}, {estado}"
         self.caminhoes = []
+        self.entregas = []
 
     def adicionar_caminhao(self, caminhao):
         self.caminhoes.append(caminhao)
@@ -19,6 +22,7 @@ class CentroDistribuicao:
         caminhão_despachado = self.despachar_caminhao(entrega)
         if caminhão_despachado:
             print(f"Caminhão {caminhão_despachado.idCaminhao} despachado para a entrega.")
+            self.entregas.append(entrega)
         else:
             print("Nenhum caminhão disponível para despachar.")
 

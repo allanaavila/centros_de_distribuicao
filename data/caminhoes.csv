@@ -1,5 +1,3 @@
-idCaminhao,capacidade,horas_operacao_max
-1,1000,8
-2,1200,10
-3,800,8
-4,1500,12
+id,cidade,estado,capacidade,horas_operacao_max
+1,São Paulo,SP,10000,8
+2,Rio de Janeiro,RJ,8000,6
